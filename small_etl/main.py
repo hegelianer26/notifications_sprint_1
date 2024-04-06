@@ -3,6 +3,9 @@ from config import from_config, to_config
 import schedule
 import time
 import datetime
+import logging
+
+logging.basicConfig(filename='etl.log', level=logging.INFO)
 
 
 def run_process():
@@ -36,13 +39,13 @@ def run_process():
     cursor_source.execute(
         "SELECT u.first_name, u.last_name, u.email, g.name, u.created_at FROM users u JOIN user_groups ug ON u.uuid = ug.user_id JOIN groups g ON ug.group_id = g.uuid WHERE created_at > %s", (last_loaded_timestamp,))
     new_data = cursor_source.fetchall()
-    print('extracted data', new_data)
+    logging.info('extracted data', new_data)
 
     cursor_dest = conn_dest.cursor()
     for row in new_data:
         cursor_dest.execute(
             "INSERT INTO users_for_mails (first_name, last_name, email, group_name, created_at) VALUES (%s, %s, %s, %s, %s)", row)
-    print('inserted data', new_data)
+    logging.info('inserted data', new_data)
 
     conn_dest.commit()
     conn_source.commit()

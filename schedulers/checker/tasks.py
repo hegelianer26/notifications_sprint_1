@@ -3,6 +3,9 @@ import psycopg2
 import pika
 import json
 from config import rabbitmq_config, postgres_config
+import logging
+
+logging.basicConfig(filename='checker.log', level=logging.INFO) 
 
 # checker_app = Celery('tasks', broker=f'pyamqp://{rabbitmq_config.user}:{rabbitmq_config.password}@{rabbitmq_config.host}//',)
 checker_app = Celery('tasks', broker=f'redis://movie_redis_1')
@@ -25,6 +28,16 @@ def check_and_send_messages():
         failed_messages = [dict(zip(columns, row)) for row in cur.fetchall()]
     conn.close()
 
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM notify_history WHERE status = 'failed'")
+            columns = [desc[0] for desc in cur.description]
+            failed_messages = [dict(zip(columns, row)) for row in cur.fetchall()]
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+    finally:
+        conn.close()
+
     if failed_messages:
 
         credentials = pika.PlainCredentials(rabbitmq_config.user,
@@ -46,7 +59,7 @@ def check_and_send_messages():
                 body=message_body_bytes,
                 properties=pika.BasicProperties(delivery_mode=2))
 
-        print('Message published to RabbitMQ')
+        logging.info('Message published to RabbitMQ')
 
 
 checker_app.conf.CELERYBEAT_SCHEDULE = {

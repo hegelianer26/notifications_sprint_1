@@ -1,9 +1,10 @@
 import uuid
-from sqlalchemy import Column, String, Text
+from sqlalchemy import Column, String, Text, MetaData
 from sqlalchemy.dialects.postgresql import UUID
 
 from db import Base
 
+metadata = MetaData()
 
 class NotificationDB(Base):
     __tablename__ = 'notify_history'

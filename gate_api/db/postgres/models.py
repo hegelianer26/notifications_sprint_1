@@ -1,15 +1,12 @@
-from datetime import datetime
 import uuid
 
-from sqlalchemy import (TIMESTAMP, Boolean, Column, DateTime, ForeignKey,
-                        String, Text, UniqueConstraint, event, Integer, SmallInteger, Enum)
+from sqlalchemy import (Column, String, Text, SmallInteger, MetaData)
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
 from .database import Base
 
 
-
+metadata = MetaData()
 
 class Notification(Base):
     __tablename__ = 'notify_1'

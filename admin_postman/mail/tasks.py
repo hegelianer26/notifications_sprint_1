@@ -1,11 +1,12 @@
 import requests
 from celery import shared_task
 import os
+from requests.exceptions import RequestException
 
 api_host = os.getenv('API_HOST')
 api_port = os.getenv('API_PORT')
 
-@shared_task
+@shared_task(autoretry_for=(RequestException,), retry_backoff=True)
 def send_mail_once(*args):
     message = args[0]
 

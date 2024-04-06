@@ -4,3 +4,4 @@ pydantic==2.6.4
 pydantic-settings==2.2.1
 pydantic_core==2.16.3
 SQLAlchemy==2.0.29
+lembic==1.13.1
